@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/c-bata/go-prompt"
 	"strconv"
 	"strings"
 )
@@ -25,14 +26,11 @@ func (is *indexSelector) formatString(sep string) string {
 	return strings.Join(ts, sep)
 }
 
-func readLine() (line string) {
-	_, err := fmt.Scanf("%s", &line)
-	if err != nil {
-		printInputError("buff reader readline failed: %v", err)
-		return readLine()
-	} else {
-		return line
-	}
+func readLine(legalJudge func(string) bool) (line string) {
+	return prompt.Input(
+		"input: ",
+		ConvertSuggesterFuncToCompleter(PrintLegalSuggesterFunc(legalJudge)),
+	)
 }
 
 func printTranslation(key string, args ...interface{}) {
@@ -44,13 +42,21 @@ func printInputError(formant string, args ...interface{}) {
 	printTranslation("incorrect_input_format")
 }
 
-func yesNoParser() bool {
-	input := strings.ToUpper(readLine())
-	return strings.HasPrefix(input, "Y")
+func yesNoParser(prefix ...string) bool {
+	input := readLine(func(s string) bool { return true })
+	return strings.HasPrefix(strings.ToUpper(input), "Y")
 }
 
 func uint16Parser() uint16 {
-	input := readLine()
+	input := readLine(func(s string) bool {
+		uintVal, err := strconv.ParseUint(s, 10, 64)
+		if err != nil {
+			return false
+		} else {
+			return uintVal < 1<<16
+		}
+	})
+
 	uintVal, err := strconv.ParseUint(input, 10, 64)
 	if err != nil {
 		printInputError("parse input [%v] to uint16 failed: %v", input, err)
@@ -61,7 +67,15 @@ func uint16Parser() uint16 {
 }
 
 func intParser() int {
-	input := readLine()
+	input := readLine(func(s string) bool {
+		_, err := strconv.Atoi(s)
+		if err != nil {
+			return false
+		} else {
+			return true
+		}
+	})
+
 	intVal, err := strconv.Atoi(input)
 	if err != nil {
 		printInputError("parse input [%v] to int failed: %v", input, err)
@@ -72,7 +86,21 @@ func intParser() int {
 }
 
 func indexParser(lowerBound, upperBound int) int {
-	intVal := intParser()
+	input := readLine(func(s string) bool {
+		intVal, err := strconv.Atoi(s)
+		if err != nil {
+			return false
+		} else {
+			return intVal <= upperBound && intVal >= lowerBound
+		}
+	})
+
+	intVal, err := strconv.Atoi(input)
+	if err != nil {
+		printInputError("parse input [%v] to int-index failed: %v", input, err)
+		return indexParser(lowerBound, upperBound)
+	}
+
 	if intVal > upperBound || intVal < lowerBound {
 		printInputError("incorrect index [%v] to index range [%v, %v]", intVal, lowerBound, upperBound)
 		return indexParser(lowerBound, upperBound)
