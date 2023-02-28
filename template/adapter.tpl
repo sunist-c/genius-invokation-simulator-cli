@@ -4,8 +4,7 @@ import (
 	"github.com/sunist-c/genius-invokation-simulator-backend/model/adapter"
 
 	{{range .generateContext.ImportPackages}} {{.Alias}} "{{.Full}}"
-	{{end}}
-)
+{{end}})
 
 type {{.generateContext.AdapterName}} struct {
 	dictionary map[{{.generateContext.SourceType}}]{{.generateContext.DestType}}
@@ -20,7 +19,6 @@ func New{{.generateContext.AdapterName}}() adapter.Adapter[{{.generateContext.So
 	return &{{.generateContext.AdapterName}} {
 		dictionary: map[{{.generateContext.SourceType}}]{{.generateContext.DestType}}{
 			{{range .generateContext.Enums}} {{.SourceValue}}: {{.DestValue}},
-			{{end}}
-		},
+		{{end}}},
 	}
 }

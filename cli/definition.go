@@ -1,15 +1,23 @@
-package parser
+package cli
 
-type Command string
+type Command = string
 
 const (
 	CommandNewEntity      Command = "new"
 	CommandModifyEntity   Command = "modify"
 	CommandDeleteEntity   Command = "delete"
 	CommandAddDescription Command = "description"
+	CommandList           Command = "list"
+	CommandExit           Command = "exit"
 )
 
-type EntityType string
+var (
+	AllCommand = []Command{
+		CommandNewEntity, CommandModifyEntity, CommandDeleteEntity, CommandAddDescription, CommandList, CommandExit,
+	}
+)
+
+type EntityType = string
 
 const (
 	EntityCharacter EntityType = "character"
@@ -18,4 +26,10 @@ const (
 	EntitySummon    EntityType = "summon"
 	EntityCard      EntityType = "card"
 	EntityRule      EntityType = "rule"
+)
+
+var (
+	AllEntityType = []EntityType{
+		EntityCharacter, EntitySkill, EntityEvent, EntitySummon, EntityCard, EntityRule,
+	}
 )

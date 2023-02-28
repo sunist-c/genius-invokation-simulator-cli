@@ -162,3 +162,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Logs
+logs/
+*.log
+
+# Metadata
+/**/metadata.yml

@@ -26,6 +26,14 @@ func (is *indexSelector) formatString(sep string) string {
 	return strings.Join(ts, sep)
 }
 
+func (is *indexSelector) length() int {
+	return len(is.indexes)
+}
+
+func (is *indexSelector) getContent(index int) string {
+	return is.indexes[index]
+}
+
 func readLine(legalJudge func(string) bool) (line string) {
 	return prompt.Input(
 		"input: ",
@@ -82,6 +90,28 @@ func intParser() int {
 		return intParser()
 	} else {
 		return intVal
+	}
+}
+
+func positiveIntParser() uint {
+	input := readLine(func(s string) bool {
+		intVal, err := strconv.Atoi(s)
+		if err != nil {
+			return false
+		} else {
+			return intVal > 0
+		}
+	})
+
+	intVal, err := strconv.Atoi(input)
+	if err != nil {
+		printInputError("parse input [%v] to positive-int failed: %v", input, err)
+		return positiveIntParser()
+	} else if intVal <= 0 {
+		printInputError("input [%v] is not a positive number", intVal)
+		return positiveIntParser()
+	} else {
+		return uint(intVal)
 	}
 }
 

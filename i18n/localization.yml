@@ -1,0 +1,115 @@
+ChineseSimplified:
+  # 通用错误
+  incorrect_input_format: "您的输入有误，请重新输入"
+  correct_input_format: "合法的输入"
+
+  # 新建角色相关
+  new_character_help: "角色名称，也是生成代码中的角色类型名"
+  new_character_example: "角色名称示例，仅支持英语，请将首字母大写"
+  new_character_id_question: "您是否需要为该角色指定ID，请输入 [Y/N]"
+  new_character_id_description: "请您为该角色指定一个ID，请输入一个 [1, 65535] 之间的数字"
+  new_character_id_success_result: "已成功为该角色分配您指定的短ID：%v，长ID为：%v"
+  new_character_id_failed_result: "该ID可能已被占用，您是否需要重新指定一个ID，请输入 [Y/N]"
+  new_character_id_result: "已成功为该角色分配一个系统生成的ID：%v，长ID为：%v"
+  new_character_affiliation_description: "该角色的势力所属为：\n%v\n请您输入序号"
+  new_character_affiliation_result: "已设置该角色的势力所属：%v"
+  new_character_vision_description: "该角色的神之眼(心)类型为：\n%v\n请您输入序号"
+  new_character_vision_result: "已设置该角色的神之眼(心)类型：%v"
+  new_character_weapon_description: "该角色使用的武器类型为：\n%v\n请您输入序号"
+  new_character_weapon_result: "已设置该角色的武器类型：%v"
+  new_character_hp_description: "该角色的最大生命值是多少，请输入一个正整数"
+  new_character_hp_result: "该角色的最大生命值为：%v"
+  new_character_mp_description: "该角色的元素爆发所需要的能量是多少，请输入一个正整数"
+  new_character_mp_result: "该角色的元素爆发所需要的能量为：%v"
+
+  # 第一级命令相关
+  new_desc: "新建一个实体"
+  modify_desc: "修改一个已存在的实体"
+  delete_desc: "删除一个已存在的实体"
+  description_desc: "描述一个已存在的实体"
+  list_desc: "列出已存在的实体"
+  exit_desc: "退出gis-cli模组制作工具"
+
+  # 实体相关
+  character_desc: "角色类型实体"
+  skill_desc: "技能类型实体"
+  event_desc: "事件类型实体"
+  summon_desc: "召唤物类型实体"
+  card_desc: "卡牌类型实体"
+  rule_desc: "规则类型实体"
+
+  # 归属地相关
+  affiliation_mondstadt_desc: "蒙德人"
+  affiliation_liyue_desc: "璃月人"
+  affiliation_inazuma_desc: "稻妻人"
+  affiliation_sumeru_desc: "须弥人"
+  affiliation_fatui_desc: "愚人众"
+  affiliation_hilichurl_desc: "丘丘人"
+  affiliation_monster_desc: "魔物"
+  affiliation_undefined_desc: "未定义"
+
+  # 元素类型相关
+  element_currency_desc: "通用元素"
+  element_anemo_desc: "风元素"
+  element_cryo_desc: "冰元素"
+  element_dendro_desc: "草元素"
+  element_electro_desc: "雷元素"
+  element_geo_desc: "岩元素"
+  element_hydro_desc: "水元素"
+  element_pyro_desc: "火元素"
+  element_none_desc: "无元素"
+  element_undifined_desc: "未定义元素"
+
+  # 武器相关
+  weapon_sword_desc: "单手剑"
+  weapon_claymore_desc: "双手剑"
+  weapon_bow_desc: "弓"
+  weapon_catalyst_desc: "法器"
+  weapon_polearm_desc: "长柄武器"
+  weapon_others_desc: "其他武器"
+
+
+ChineseTraditional:
+  new_desc: "新建一個實體"
+  modify_desc: "修改一個已存在的實體"
+  delete_desc: "删除一個已存在的實體"
+  description_desc: "描述一個已存在的實體"
+  list_desc: "列出已存在的實體"
+  exit_desc: "退出gis-cli模組製作程式"
+  character_desc: "角色類型實體"
+  skill_desc: "技能類型實體"
+  event_desc: "事件類型實體"
+  summon_desc: "召喚物類型實體"
+  card_desc: "卡牌類型實體"
+  rule_desc: "規則類型實體"
+
+English:
+  new_character_help: "character name, also is the type-name in the generated code"
+  new_character_example: "character name example, support English only, please UPPER the first letter"
+  new_desc: "create a new entity"
+  modify_desc: "modify an existing entity"
+  delete_desc: "delete a entity"
+  description_desc: "add description to an existing entity"
+  list_desc: "list existing entities"
+  exit_desc: "exit gis-cli mod editor"
+  character_desc: "character type entity"
+  skill_desc: "skill type entity"
+  event_desc: "event type entity"
+  summon_desc: "summon type entity"
+  card_desc: "card type entity"
+  rule_desc: "rule type entity"
+
+French:
+
+
+German:
+
+
+Japanese:
+
+
+Korean:
+
+
+Russian:
+
