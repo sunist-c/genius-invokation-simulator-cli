@@ -41,7 +41,7 @@ func Default() Logger {
 		if err != nil {
 			panic(err)
 		}
-		errFile, err := os.OpenFile(path.Join(outputDirectory, "stderr.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+		errFile, err := os.OpenFile(path.Join(outputDirectory, "stderr.log"), os.O_TRUNC|os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 		if err != nil {
 			panic(err)
 		}
