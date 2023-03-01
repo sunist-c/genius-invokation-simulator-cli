@@ -1,4 +1,4 @@
-package cli
+package localization
 
 import (
 	"fmt"
@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	languagePack SuggestionLanguageSupport
+	LanguagePack SuggestionLanguageSupport
 
 	localLanguage               = enum.Unknown
-	fullStringToLanguageAdapter = parser.NewFullStringToLanguageAdapter()
-	languageToFullStringAdapter = parser.NewLanguageToFullStringAdapter()
+	FullStringToLanguageAdapter = parser.NewFullStringToLanguageAdapter()
+	LanguageToFullStringAdapter = parser.NewLanguageToFullStringAdapter()
 )
 
 func init() {
@@ -30,8 +30,8 @@ func init() {
 		logger.Panicf("failed to read localization file [%v]", pathOfLocalization)
 	}
 
-	languagePack = SuggestionLanguageSupport{dictionary: map[string]map[string]string{}}
-	unmarshalErr := yaml.Unmarshal(bytesOfLocalizationFile, &languagePack.dictionary)
+	LanguagePack = SuggestionLanguageSupport{dictionary: map[string]map[string]string{}}
+	unmarshalErr := yaml.Unmarshal(bytesOfLocalizationFile, &LanguagePack.dictionary)
 	if unmarshalErr != nil {
 		logger.Panicf("failed to unmarshal localization file [%v]", pathOfLocalization)
 	}
@@ -44,11 +44,11 @@ type SuggestionLanguageSupport struct {
 }
 
 func (support SuggestionLanguageSupport) GetTranslation(language enum.Language, key string) (translation string) {
-	_, lang := languageToFullStringAdapter.Convert(language)
+	_, lang := LanguageToFullStringAdapter.Convert(language)
 	return support.dictionary[lang][key]
 }
 
-func LocalLanguage() enum.Language {
+func GetLocalLanguage() enum.Language {
 	if localLanguage == enum.Unknown {
 		localLanguage, _ = getLocalLanguage()
 	}
@@ -63,7 +63,7 @@ func getLocalLanguage() (language enum.Language, err error) {
 		if err != nil {
 			logger.Errorf("get local language failed: %v", err)
 		} else {
-			_, stringLanguage := languageToFullStringAdapter.Convert(language)
+			_, stringLanguage := LanguageToFullStringAdapter.Convert(language)
 			logger.Logf("get local language %v success", stringLanguage)
 		}
 	}()
