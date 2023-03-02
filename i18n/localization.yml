@@ -1,15 +1,28 @@
 ChineseSimplified:
-  # 通用错误
+  # 通用提示
+  mod_not_init: "gis-cli模组制作工具未初始化，请先运行init命令"
+  io_failed_description: "在 [%v] 处的文件(夹)操作发生了错误，程序即将退出"
+  no_files_created: "本次最小生成操作未生成任何文件"
+  some_files_created: "本次最小生成操作生成了部份文件"
+  success_generated_file: "成功生成文件：%v"
+  new_entity_warning: "警告：您进入了实体编辑模式，为避免意外的错误，您需要完整执行实体编辑的所有的步骤才能退出"
   incorrect_input_format: "您的输入有误，请重新输入"
   correct_input_format: "合法的输入"
+  invalid_command_desc: "错误的命令"
+  no_matched_command_desc: "没有匹配的提示"
+
+  # 初始化MOD相关
+  init_mod_help: "模组的包名，也是模组的项目名"
+  init_mod_public_example: "公有模组包名示例，仅支持大小写字母、数字、'-'、'_'、'.'和'/'，首字母必须为大小写字母"
+  init_mod_private_example: "私有模组包名示例，仅支持大小写字母、数字、'-'、'_'、'.'和'/'，首字母必须为大小写字母"
 
   # 新建角色相关
-  new_character_help: "角色名称，也是生成代码中的角色类型名"
+  new_character_help: "角色名称，也是生成代码中的角色类型名与文件名"
   new_character_example: "角色名称示例，仅支持英语，请将首字母大写"
   new_character_id_question: "您是否需要为该角色指定ID，请输入 [Y/N]"
   new_character_id_description: "请您为该角色指定一个ID，请输入一个 [1, 65535] 之间的数字"
   new_character_id_success_result: "已成功为该角色分配您指定的短ID：%v，长ID为：%v"
-  new_character_id_failed_result: "该ID可能已被占用，您是否需要重新指定一个ID，请输入 [Y/N]"
+  new_character_id_failed_result: "该ID可能已被占用，您是否需要重新为该技能指定一个ID，请输入 [Y/N]"
   new_character_id_result: "已成功为该角色分配一个系统生成的ID：%v，长ID为：%v"
   new_character_affiliation_description: "该角色的势力所属为：\n%v\n请您输入序号"
   new_character_affiliation_result: "已设置该角色的势力所属：%v"
@@ -21,8 +34,21 @@ ChineseSimplified:
   new_character_hp_result: "该角色的最大生命值为：%v"
   new_character_mp_description: "该角色的元素爆发所需要的能量是多少，请输入一个正整数"
   new_character_mp_result: "该角色的元素爆发所需要的能量为：%v"
+  new_character_with_skill_question: "是否需要为该角色创建技能，请输入 [Y/N]"
+  new_character_with_skill_description: "请输入该技能的名称"
+  new_character_with_skill_help: "技能名称，也是生成代码中的技能类型名与文件名"
+  new_character_with_skill_example: "技能名称示例，仅支持英语，请将首字母大写"
+  new_character_with_skill_id_question: "您是否需要为该技能指定ID，请输入 [Y/N]"
+  new_character_with_skill_id_description: "请您为该技能指定一个ID，请输入一个 [1, 65535] 之间的数字"
+  new_character_with_skill_id_success_result: "已成功为该技能分配您指定的短ID：%v，长ID为：%v"
+  new_character_with_skill_id_failed_result: "该ID可能已被占用，您是否需要重新为该技能指定一个ID，请输入 [Y/N]"
+  new_character_with_skill_id_result: "已成功为该技能分配一个系统生成的ID：%v，长ID为：%v"
+  new_character_with_skill_type_description: "该技能的技能类型为：\n%v\n请您输入序号"
+  new_character_with_skill_type_result: "已设置该技能的技能类型为：%v"
+  new_character_with_skill_continue_question: "是否需要继续为该角色创建技能，请输入 [Y/N]"
 
   # 第一级命令相关
+  init_desc: "初始化模组依赖"
   new_desc: "新建一个实体"
   modify_desc: "修改一个已存在的实体"
   delete_desc: "删除一个已存在的实体"
@@ -60,13 +86,20 @@ ChineseSimplified:
   element_none_desc: "无元素"
   element_undifined_desc: "未定义元素"
 
-  # 武器相关
+  # 武器类型相关
   weapon_sword_desc: "单手剑"
   weapon_claymore_desc: "双手剑"
   weapon_bow_desc: "弓"
   weapon_catalyst_desc: "法器"
   weapon_polearm_desc: "长柄武器"
   weapon_others_desc: "其他武器"
+
+  # 技能类型相关
+  skill_passive_desc: "被动技能"
+  skill_normal_attack_desc: "普通攻击"
+  skill_elemental_skill_desc: "元素战技"
+  skill_elemental_burst_desc: "元素爆发"
+  skill_cooperative_desc: "协同攻击技能"
 
 
 ChineseTraditional:
