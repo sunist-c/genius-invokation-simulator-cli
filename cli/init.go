@@ -3,33 +3,41 @@ package cli
 import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
+	"github.com/sunist-c/genius-invokation-simulator-backend/enum"
 	"github.com/sunist-c/genius-invokation-simulator-backend/mod/implement"
+	"github.com/sunist-c/genius-invokation-simulator-cli/advisor"
+	"github.com/sunist-c/genius-invokation-simulator-cli/data"
 	"github.com/sunist-c/genius-invokation-simulator-cli/generator"
+	"github.com/sunist-c/genius-invokation-simulator-cli/localization"
 	"github.com/sunist-c/genius-invokation-simulator-cli/log"
 	"os"
 	"path"
+	"path/filepath"
 	"text/template"
 )
 
 var (
 	workingDirectory string
 
-	advisor Advisor
+	rootAdvisor advisor.Advisor
 
 	logger = log.Default()
 
-	affiliationSelector = &indexSelector{indexes: map[int]string{}}
-	elementTypeSelector = &indexSelector{indexes: map[int]string{}}
-	weaponTypeSelector  = &indexSelector{indexes: map[int]string{}}
+	affiliationSelector = newIndexSelector[enum.Affiliation]()
+	elementTypeSelector = newIndexSelector[enum.ElementType]()
+	weaponTypeSelector  = newIndexSelector[enum.WeaponType]()
+	skillTypeSelector   = newIndexSelector[enum.SkillType]()
 
-	characterTemplate *template.Template
-	skillTemplate     *template.Template
-	cardTemplate      *template.Template
-	ruleTemplate      *template.Template
-	modTemplate       *template.Template
+	characterTemplate        *template.Template
+	attackSkillTemplate      *template.Template
+	cooperativeSkillTemplate *template.Template
+	passiveSkillTemplate     *template.Template
+	currencySkillTemplate    *template.Template
+	cardTemplate             *template.Template
+	ruleTemplate             *template.Template
+	modTemplate              *template.Template
 
 	characterGenerator *generator.Generator[NewCharacterContext]
-	skillGenerator     *generator.Generator[NewSkillContext]
 	cardGenerator      *generator.Generator[NewCardContext]
 	ruleGenerator      *generator.Generator[NewRuleContext]
 	modGenerator       *generator.Generator[InitModContext]
@@ -37,60 +45,160 @@ var (
 
 func initSelectors() {
 	// init affiliationSelector
-	affiliationSelector.loadTranslation(
-		"affiliation_mondstadt_desc",
-		"affiliation_liyue_desc",
-		"affiliation_inazuma_desc",
-		"affiliation_sumeru_desc",
-		"affiliation_fatui_desc",
-		"affiliation_hilichurl_desc",
-		"affiliation_monster_desc",
-		"affiliation_undefined_desc",
-	)
+	affiliationSelector.loadOptions([]indexOption[enum.Affiliation]{
+		{
+			key:       "affiliation_mondstadt_desc",
+			reference: enum.AffiliationMondstadt,
+		},
+		{
+			key:       "affiliation_liyue_desc",
+			reference: enum.AffiliationLiyue,
+		},
+		{
+			key:       "affiliation_inazuma_desc",
+			reference: enum.AffiliationInazuma,
+		},
+		{
+			key:       "affiliation_sumeru_desc",
+			reference: enum.AffiliationSumeru,
+		},
+		{
+			key:       "affiliation_fatui_desc",
+			reference: enum.AffiliationFatui,
+		},
+		{
+			key:       "affiliation_hilichurl_desc",
+			reference: enum.AffiliationHilichurl,
+		},
+		{
+			key:       "affiliation_monster_desc",
+			reference: enum.AffiliationMonster,
+		},
+		{
+			key:       "affiliation_undefined_desc",
+			reference: enum.AffiliationUndefined,
+		},
+	}...)
 
 	// init elementTypeSelector
-	elementTypeSelector.loadTranslation(
-		"element_currency_desc",
-		"element_anemo_desc",
-		"element_cryo_desc",
-		"element_dendro_desc",
-		"element_electro_desc",
-		"element_geo_desc",
-		"element_hydro_desc",
-		"element_pyro_desc",
-		"element_none_desc",
-		"element_undifined_desc",
-	)
+	elementTypeSelector.loadOptions([]indexOption[enum.ElementType]{
+		{
+			key:       "element_currency_desc",
+			reference: enum.ElementCurrency,
+		},
+		{
+			key:       "element_anemo_desc",
+			reference: enum.ElementAnemo,
+		},
+		{
+			key:       "element_cryo_desc",
+			reference: enum.ElementCryo,
+		},
+		{
+			key:       "element_dendro_desc",
+			reference: enum.ElementDendro,
+		},
+		{
+			key:       "element_electro_desc",
+			reference: enum.ElementElectro,
+		},
+		{
+			key:       "element_geo_desc",
+			reference: enum.ElementGeo,
+		},
+		{
+			key:       "element_hydro_desc",
+			reference: enum.ElementHydro,
+		},
+		{
+			key:       "element_pyro_desc",
+			reference: enum.ElementPyro,
+		},
+		{
+			key:       "element_none_desc",
+			reference: enum.ElementNone,
+		},
+		{
+			key:       "element_undifined_desc",
+			reference: enum.ElementUndefined,
+		},
+	}...)
 
 	// init weaponTypeSelector
-	weaponTypeSelector.loadTranslation(
-		"weapon_sword_desc",
-		"weapon_claymore_desc",
-		"weapon_bow_desc",
-		"weapon_catalyst_desc",
-		"weapon_polearm_desc",
-		"weapon_others_desc",
-		"",
-	)
+	weaponTypeSelector.loadOptions([]indexOption[enum.WeaponType]{
+		{
+			key:       "weapon_sword_desc",
+			reference: enum.WeaponSword,
+		},
+		{
+			key:       "weapon_claymore_desc",
+			reference: enum.WeaponClaymore,
+		},
+		{
+			key:       "weapon_bow_desc",
+			reference: enum.WeaponBow,
+		},
+		{
+			key:       "weapon_catalyst_desc",
+			reference: enum.WeaponCatalyst,
+		},
+		{
+			key:       "weapon_polearm_desc",
+			reference: enum.WeaponPolearm,
+		},
+		{
+			key:       "weapon_others_desc",
+			reference: enum.WeaponOthers,
+		},
+	}...)
+
+	// init skillTypeSelector
+	skillTypeSelector.loadOptions([]indexOption[enum.SkillType]{
+		{
+			key:       "skill_passive_desc",
+			reference: enum.SkillPassive,
+		},
+		{
+			key:       "skill_normal_attack_desc",
+			reference: enum.SkillNormalAttack,
+		},
+		{
+			key:       "skill_elemental_skill_desc",
+			reference: enum.SkillElementalSkill,
+		},
+		{
+			key:       "skill_elemental_burst_desc",
+			reference: enum.SkillElementalBurst,
+		},
+		{
+			key:       "skill_cooperative_desc",
+			reference: enum.SkillCooperative,
+		},
+	}...)
 }
 
 func initAdvisors() {
 	// main commands
-	rootAdvisor := NewAdvisorWithOpts(
-		WithAdvisorDepth(0),
-		WithAdvisorEntrance(""),
-		WithAdvisorBuiltinSuggestions(AllCommand...),
-		WithAdvisorFunctionChain(
+	initializingAdvisor := advisor.NewAdvisorWithOpts(
+		advisor.WithAdvisorDepth(0),
+		advisor.WithAdvisorEntrance(""),
+		advisor.WithAdvisorSuggesterFunctions(
+			InitializeJudgeSuggesterFunc(data.GetContext())),
+		advisor.WithAdvisorBuiltinSuggestions(AllCommand...),
+		advisor.WithAdvisorFunctionChain(
 			ExitCliHandler(),
 		),
 	)
 
 	{
 		// new entity command
-		newAdvisor := rootAdvisor.PluginChildWithOpts(
-			WithAdvisorEntrance("new"),
-			WithAdvisorBuiltinSuggestions(AllEntityType...),
-			WithAdvisorFunctionChain(func(argument string) {
+		newAdvisor := initializingAdvisor.PluginChildWithOpts(
+			advisor.WithAdvisorEntrance("new"),
+			advisor.WithAdvisorSuggesterFunctions(
+				InitializeJudgeSuggesterFunc(data.GetContext()),
+			),
+			advisor.WithAdvisorBuiltinSuggestions(AllEntityType...),
+			advisor.WithAdvisorFunctionChain(func(argument string) {
 				fmt.Println(argument)
 			}),
 		)
@@ -98,21 +206,23 @@ func initAdvisors() {
 		{
 			// new character command
 			newAdvisor.PluginChildWithOpts(
-				WithAdvisorEntrance("character"),
-				WithAdvisorSuggestionFunction(func(d *prompt.Document) []prompt.Suggest {
-					return []prompt.Suggest{
+				advisor.WithAdvisorEntrance("character"),
+				advisor.WithAdvisorSuggesterFunctions(
+					InitializeJudgeSuggesterFunc(data.GetContext()),
+					FirstLetterUpperCaseLegalSuggesterFunc(),
+					StaticSuggesterFunc([]prompt.Suggest{
 						{
 							Text:        "character_name",
-							Description: languagePack.GetTranslation(LocalLanguage(), "new_character_help"),
+							Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "new_character_help"),
 						},
 						{
 							Text:        "Keqing",
-							Description: languagePack.GetTranslation(LocalLanguage(), "new_character_example"),
+							Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "new_character_example"),
 						},
-					}
-				}),
-				WithAdvisorFunctionChain(
-					NewCharacterHandler(),
+					}...),
+				),
+				advisor.WithAdvisorFunctionChain(
+					NewCharacterHandler(data.GetContext()),
 				),
 			)
 		}
@@ -120,16 +230,53 @@ func initAdvisors() {
 
 	{
 		// list entities command
-		rootAdvisor.PluginChildWithOpts(
-			WithAdvisorEntrance("list"),
-			WithAdvisorBuiltinSuggestions(AllEntityType...),
-			WithAdvisorFunctionChain(func(argument string) {
+		initializingAdvisor.PluginChildWithOpts(
+			advisor.WithAdvisorEntrance("list"),
+			advisor.WithAdvisorBuiltinSuggestions(AllEntityType...),
+			advisor.WithAdvisorFunctionChain(func(argument string) {
 				fmt.Println(argument)
 			}),
 		)
 	}
 
-	advisor = rootAdvisor
+	{
+		// init mod command
+		initializingAdvisor.PluginChildWithOpts(
+			advisor.WithAdvisorEntrance("init"),
+			advisor.WithAdvisorSuggesterFunctions(
+				PackagePathLegalSuggesterFunc(),
+				StaticSuggesterFunc([]prompt.Suggest{
+					{
+						Text:        "package_name",
+						Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "init_mod_help"),
+					},
+					{
+						Text:        "github.com/sunist-c/gisb-base-mod",
+						Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "init_mod_public_example"),
+					},
+					{
+						Text:        "gisb_base_mod",
+						Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "init_mod_private_example"),
+					},
+				}...),
+			),
+			advisor.WithAdvisorFunctionChain(
+				InitModHandler(data.GetContext()),
+			),
+		)
+	}
+
+	rootAdvisor = initializingAdvisor
+}
+
+func initTemplates() {
+	// attackSkillTemplate
+	if attackSkillParsingTemplate, err := template.ParseFiles(filepath.Join("./template", "attack_skill.tpl")); err != nil {
+		logger.Panicf("failed to parse attack skill template: %v", err)
+	} else {
+		attackSkillTemplate = attackSkillParsingTemplate
+	}
+
 }
 
 func initGenerators() {
@@ -147,13 +294,23 @@ func init() {
 		workingDirectory = pwd
 	}
 
-	logger.Logf("initializing metadata in [%v]", workingDirectory)
-	implement.InitMetaData()
-	logger.Logf("current mod id: %v", implement.ModID())
+	logger.Logf("try to find metadata.yml in [%v]", workingDirectory)
+	if _, err := os.Stat(filepath.Join(workingDirectory, "metadata.yml")); err != nil && !os.IsNotExist(err) {
+		logger.Panicf("find metadata.yml in [%v] failed: %v", workingDirectory, err)
+	} else if os.IsNotExist(err) {
+		logger.Logf("no metadata.yml detected in [%v]", workingDirectory)
+		data.GetContext().Initialized = false
+	} else {
+		logger.Logf("parsing metadata file [%v]", filepath.Join(workingDirectory, "metadata.yml"))
+		logger.Logf("current mod id: %v", implement.ModID())
+	}
 
-	logger.Logf("initializing io-util.selectors")
+	logger.Logf("initializing selectors")
 	initSelectors()
 
 	logger.Logf("initializing advisors")
 	initAdvisors()
+
+	logger.Logf("initializing templates")
+	initTemplates()
 }
