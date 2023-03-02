@@ -10,12 +10,10 @@ func InvalidAdvisor() Advisor {
 		WithAdvisorDepth(0),
 		WithAdvisorSuggesterFunctions(
 			func(ctx *SuggesterContext) {
-				ctx.Result = []prompt.Suggest{
-					{
-						Text:        "",
-						Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "invalid_command_desc"),
-					},
-				}
+				ctx.AppendSuggestBefore(prompt.Suggest{
+					Text:        ctx.Document.GetWordBeforeCursor(),
+					Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "invalid_command_desc"),
+				})
 				ctx.Abort()
 			},
 		),
@@ -27,12 +25,11 @@ func NoMatchedAdvisor() Advisor {
 		WithAdvisorDepth(0),
 		WithAdvisorSuggesterFunctions(
 			func(ctx *SuggesterContext) {
-				ctx.Result = append([]prompt.Suggest{
-					{
-						Text:        "",
-						Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "no_matched_command_desc"),
-					},
-				}, ctx.Result...)
-			}),
+				ctx.AppendSuggestBefore(prompt.Suggest{
+					Text:        ctx.Document.GetWordBeforeCursor(),
+					Description: localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), "no_matched_command_desc"),
+				})
+			},
+		),
 	)
 }

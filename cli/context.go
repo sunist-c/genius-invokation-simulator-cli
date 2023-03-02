@@ -1,8 +1,18 @@
 package cli
 
-type NewCharacterContext struct{}
+import "github.com/sunist-c/genius-invokation-simulator-backend/enum"
 
-type NewSkillContext struct{}
+type context = map[string]interface{}
+
+type NewCharacterContext struct {
+	CharacterName string
+}
+
+type NewSkillContext struct {
+	SkillName string
+	SkillID   uint16
+	SkillType enum.SkillType
+}
 
 type NewCardContext struct{}
 

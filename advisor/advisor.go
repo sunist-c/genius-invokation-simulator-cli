@@ -16,7 +16,7 @@ type Advisor interface {
 	Handler() func(argument string)
 }
 
-type advisorImpl struct {
+type implement struct {
 	suggesters []SuggesterFunc
 	entrance   string
 	depth      int
@@ -25,36 +25,31 @@ type advisorImpl struct {
 	document   *prompt.Document
 }
 
-func (impl *advisorImpl) Entrance() string {
+func (impl *implement) Entrance() string {
 	return impl.entrance
 }
 
-func (impl *advisorImpl) NodeDepth() int {
+func (impl *implement) NodeDepth() int {
 	return impl.depth
 }
 
-func (impl *advisorImpl) SyncDocument(document *prompt.Document) {
+func (impl *implement) SyncDocument(document *prompt.Document) {
 	impl.document = document
 }
 
-func (impl *advisorImpl) Suggestions() []prompt.Suggest {
+func (impl *implement) Suggestions() []prompt.Suggest {
 	if impl.suggesters == nil {
 		impl.suggesters = []SuggesterFunc{}
 	}
 
-	ctx := &SuggesterContext{
-		index:    0,
-		handlers: impl.suggesters,
-		Document: impl.document,
-		Result:   []prompt.Suggest{},
-	}
+	ctx := NewContext(impl.document, impl.suggesters...)
 
 	ctx.Next()
 
-	return ctx.Result
+	return ctx.Result()
 }
 
-func (impl *advisorImpl) ParseEntrance(nextEntrance string) Advisor {
+func (impl *implement) ParseEntrance(nextEntrance string) Advisor {
 	if impl.nodes == nil {
 		impl.nodes = map[string]Advisor{}
 	}
@@ -62,12 +57,12 @@ func (impl *advisorImpl) ParseEntrance(nextEntrance string) Advisor {
 	return impl.nodes[nextEntrance]
 }
 
-func (impl *advisorImpl) PluginChildWithOpts(childOptions ...Options) (child Advisor) {
+func (impl *implement) PluginChildWithOpts(childOptions ...Options) (child Advisor) {
 	if impl.nodes == nil {
 		impl.nodes = map[string]Advisor{}
 	}
 
-	childEntity := &advisorImpl{
+	childEntity := &implement{
 		entrance: "",
 		depth:    impl.depth + 1,
 		nodes:    map[string]Advisor{},
@@ -80,7 +75,7 @@ func (impl *advisorImpl) PluginChildWithOpts(childOptions ...Options) (child Adv
 	return childEntity
 }
 
-func (impl *advisorImpl) Handler() func(argument string) {
+func (impl *implement) Handler() func(argument string) {
 	if impl.handler == nil {
 		impl.handler = func(argument string) {}
 	}
@@ -88,22 +83,22 @@ func (impl *advisorImpl) Handler() func(argument string) {
 	return impl.handler
 }
 
-type Options func(option *advisorImpl)
+type Options func(option *implement)
 
 func WithAdvisorDepth(depth int) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		option.depth = depth
 	}
 }
 
 func WithAdvisorEntrance(entrance string) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		option.entrance = entrance
 	}
 }
 
 func WithAdvisorBuiltinSuggestions(keywords ...string) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		if option.suggesters == nil {
 			option.suggesters = []SuggesterFunc{}
 		}
@@ -118,25 +113,25 @@ func WithAdvisorBuiltinSuggestions(keywords ...string) Options {
 				}
 			}
 
-			ctx.Result = append(appended, prompt.FilterHasPrefix(appended, ctx.Document.GetWordBeforeCursor(), true)...)
+			ctx.AppendSuggestAfter(prompt.FilterHasPrefix(appended, ctx.Document.GetWordBeforeCursor(), true)...)
 		})
 	}
 }
 
 func WithAdvisorSuggesterFunctions(functions ...SuggesterFunc) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		option.suggesters = functions
 	}
 }
 
 func WithAdvisorSuggesterAppend(functions ...SuggesterFunc) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		option.suggesters = append(option.suggesters, functions...)
 	}
 }
 
 func WithAdvisorFunctionChain(functions ...func(argument string)) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		option.handler = func(argument string) {
 			for _, function := range functions {
 				function(argument)
@@ -146,7 +141,7 @@ func WithAdvisorFunctionChain(functions ...func(argument string)) Options {
 }
 
 func WithAdvisorChildren(nodes ...Advisor) Options {
-	return func(option *advisorImpl) {
+	return func(option *implement) {
 		for _, node := range nodes {
 			option.nodes[node.Entrance()] = node
 		}
@@ -154,7 +149,7 @@ func WithAdvisorChildren(nodes ...Advisor) Options {
 }
 
 func NewAdvisorWithOpts(options ...Options) Advisor {
-	impl := &advisorImpl{
+	impl := &implement{
 		nodes: map[string]Advisor{},
 	}
 
