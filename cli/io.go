@@ -3,21 +3,30 @@ package cli
 import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
+	"github.com/sunist-c/genius-invokation-simulator-cli/advisor"
+	"github.com/sunist-c/genius-invokation-simulator-cli/localization"
 	"strconv"
 	"strings"
 )
 
-type indexSelector struct {
-	indexes map[int]string
+type indexOption[entity any] struct {
+	key       string
+	reference entity
 }
 
-func (is *indexSelector) loadTranslation(keys ...string) {
-	for index, key := range keys {
-		is.indexes[index+1] = languagePack.GetTranslation(LocalLanguage(), key)
+type indexSelector[reference any] struct {
+	indexes    map[int]string
+	references map[int]reference
+}
+
+func (is *indexSelector[reference]) loadOptions(options ...indexOption[reference]) {
+	for index, option := range options {
+		is.indexes[index+1] = localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), option.key)
+		is.references[index+1] = option.reference
 	}
 }
 
-func (is *indexSelector) formatString(sep string) string {
+func (is *indexSelector[reference]) formatString(sep string) string {
 	ts := make([]string, len(is.indexes)+1)
 	for i := 1; i <= len(is.indexes); i++ {
 		ts[i-1] = fmt.Sprintf("[%v] %v", i, is.indexes[i])
@@ -26,23 +35,35 @@ func (is *indexSelector) formatString(sep string) string {
 	return strings.Join(ts, sep)
 }
 
-func (is *indexSelector) length() int {
+func (is *indexSelector[reference]) length() int {
 	return len(is.indexes)
 }
 
-func (is *indexSelector) getContent(index int) string {
+func (is *indexSelector[reference]) getContent(index int) string {
 	return is.indexes[index]
 }
 
-func readLine(legalJudge func(string) bool) (line string) {
-	return prompt.Input(
-		"input: ",
-		ConvertSuggesterFuncToCompleter(PrintLegalSuggesterFunc(legalJudge)),
-	)
+func (is *indexSelector[reference]) getReference(index int) reference {
+	return is.references[index]
+}
+
+func newIndexSelector[reference any]() *indexSelector[reference] {
+	return &indexSelector[reference]{
+		indexes:    map[int]string{},
+		references: map[int]reference{},
+	}
+}
+
+func readLine(handlers ...advisor.SuggesterFunc) (line string) {
+	return prompt.Input("input: ", func(document prompt.Document) []prompt.Suggest {
+		ctx := advisor.NewContext(&document, handlers...)
+		ctx.Next()
+		return ctx.Result()
+	})
 }
 
 func printTranslation(key string, args ...interface{}) {
-	fmt.Println(fmt.Sprintf(languagePack.GetTranslation(LocalLanguage(), key), args...))
+	fmt.Println(fmt.Sprintf(localization.LanguagePack.GetTranslation(localization.GetLocalLanguage(), key), args...))
 }
 
 func printInputError(formant string, args ...interface{}) {
@@ -50,20 +71,34 @@ func printInputError(formant string, args ...interface{}) {
 	printTranslation("incorrect_input_format")
 }
 
-func yesNoParser(prefix ...string) bool {
-	input := readLine(func(s string) bool { return true })
+func stringParser() string {
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(argument string) bool {
+			return true
+		}),
+	)
+
+	return input
+}
+
+func yesNoParser() bool {
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(s string) bool {
+			upperCase := strings.ToUpper(s)
+			return strings.HasPrefix(upperCase, "Y") || strings.HasPrefix(upperCase, "N")
+		}),
+	)
+
 	return strings.HasPrefix(strings.ToUpper(input), "Y")
 }
 
 func uint16Parser() uint16 {
-	input := readLine(func(s string) bool {
-		uintVal, err := strconv.ParseUint(s, 10, 64)
-		if err != nil {
-			return false
-		} else {
-			return uintVal < 1<<16
-		}
-	})
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(s string) bool {
+			uintVal, err := strconv.ParseUint(s, 10, 64)
+			return err == nil && uintVal < 1<<16
+		}),
+	)
 
 	uintVal, err := strconv.ParseUint(input, 10, 64)
 	if err != nil {
@@ -75,14 +110,12 @@ func uint16Parser() uint16 {
 }
 
 func intParser() int {
-	input := readLine(func(s string) bool {
-		_, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		} else {
-			return true
-		}
-	})
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(s string) bool {
+			_, err := strconv.Atoi(s)
+			return err == nil
+		}),
+	)
 
 	intVal, err := strconv.Atoi(input)
 	if err != nil {
@@ -94,20 +127,18 @@ func intParser() int {
 }
 
 func positiveIntParser() uint {
-	input := readLine(func(s string) bool {
-		intVal, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		} else {
-			return intVal > 0
-		}
-	})
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(s string) bool {
+			intVal, err := strconv.Atoi(s)
+			return err == nil && intVal >= 0
+		}),
+	)
 
 	intVal, err := strconv.Atoi(input)
 	if err != nil {
 		printInputError("parse input [%v] to positive-int failed: %v", input, err)
 		return positiveIntParser()
-	} else if intVal <= 0 {
+	} else if intVal < 0 {
 		printInputError("input [%v] is not a positive number", intVal)
 		return positiveIntParser()
 	} else {
@@ -116,14 +147,12 @@ func positiveIntParser() uint {
 }
 
 func indexParser(lowerBound, upperBound int) int {
-	input := readLine(func(s string) bool {
-		intVal, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		} else {
-			return intVal <= upperBound && intVal >= lowerBound
-		}
-	})
+	input := readLine(
+		LegalJudgeSuggesterFunc(func(s string) bool {
+			intVal, err := strconv.Atoi(s)
+			return err == nil && intVal >= lowerBound && intVal <= upperBound
+		}),
+	)
 
 	intVal, err := strconv.Atoi(input)
 	if err != nil {
