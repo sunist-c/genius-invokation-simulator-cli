@@ -1,23 +1,23 @@
-package {{.context.Skills.CharacterName}}
+package {{.Skill.CharacterName}}
 
 import (
-	. "github.com/sunist-c/genius-invokation-simulator-backend/enum"
+	"github.com/sunist-c/genius-invokation-simulator-backend/enum"
 	def "github.com/sunist-c/genius-invokation-simulator-backend/mod/definition"
     impl "github.com/sunist-c/genius-invokation-simulator-backend/mod/implement"
 
-	mod "{{.context.Paths.Mod}}"
+	. "{{.Paths.Mod}}"
 )
 
-type {{.context.Skills.SkillName}}Type def.AttackSkill
+type {{.Skill.SkillName}}Type def.AttackSkill
 
 var (
-    {{.context.Skills.SkillName}} {{.context.Skills.SkillName}}Type = impl.NewAttackSkillWithOpts(
-        impl.WithAttackSkillID(uint16({{.context.Skills.SkillID}})),
-		impl.WithAttackSkillType({{.context.Skills.SkillType}}),
-		impl.WithAttackSkillCost(map[ElementType]uint{
+    {{.Skill.SkillName}}Entity {{.Skill.SkillName}}Type = impl.NewAttackSkillWithOpts(
+        impl.WithAttackSkillID({{.Skill.SkillID}}),
+		impl.WithAttackSkillType({{.Skill.SkillType}}),
+		impl.WithAttackSkillCost(map[enum.ElementType]uint{
             // todo: modify me
         }),
-		impl.WithAttackSkillActiveDamageHandler(func(ctx def.Context) (elementType ElementType, damageAmount uint) {
+		impl.WithAttackSkillActiveDamageHandler(func(ctx def.Context) (elementType enum.ElementType, damageAmount uint) {
             // todo: implement me
 			panic("not implement yet")
         }),
@@ -28,12 +28,11 @@ var (
     )
 )
 
-func Get{{.context.Skills.SkillName}}Entity() def.AttackSkill {
-	var entity = {{.context.Skills.SkillName}}
-	return entity
+func Get{{.Skill.SkillName}}Entity() def.AttackSkill {
+	return {{.Skill.SkillName}}Entity
 }
 
 func init() {
     var modEntity def.Mod = GetMod()
-	modEntity.RegisterSkill(Get{{.context.Skills.SkillName}}Entity())
+	modEntity.RegisterSkill(Get{{.Skill.SkillName}}Entity())
 }
