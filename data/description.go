@@ -44,8 +44,6 @@ type ModifierDescription struct {
 
 type ModDescription struct {
 	Type        enum.DescriptionType
-	ID          uint64
-	PackagePath string
 	Name        string
 	Description string
 }

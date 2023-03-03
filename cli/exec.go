@@ -10,7 +10,7 @@ func Exec() {
 		input := prompt.Input("gis-cli> ", Completer)
 		logger.Logf("executing command [%v]", input)
 		splits := parseArgs(input)
-		handler := FindHandler(advisor, splits)
+		handler := FindHandler(rootAdvisor, splits)
 		handler(splits[len(splits)-1])
 	}
 }

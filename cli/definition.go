@@ -3,6 +3,7 @@ package cli
 type Command = string
 
 const (
+	CommandInitMod        Command = "init"
 	CommandNewEntity      Command = "new"
 	CommandModifyEntity   Command = "modify"
 	CommandDeleteEntity   Command = "delete"
@@ -13,7 +14,8 @@ const (
 
 var (
 	AllCommand = []Command{
-		CommandNewEntity, CommandModifyEntity, CommandDeleteEntity, CommandAddDescription, CommandList, CommandExit,
+		CommandInitMod, CommandNewEntity, CommandModifyEntity, CommandDeleteEntity, CommandAddDescription, CommandList,
+		CommandExit,
 	}
 )
 
