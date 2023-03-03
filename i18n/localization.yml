@@ -15,6 +15,7 @@ ChineseSimplified:
   init_mod_help: "模组的包名，也是模组的项目名"
   init_mod_public_example: "公有模组包名示例，仅支持大小写字母、数字、'-'、'_'、'.'和'/'，首字母必须为大小写字母"
   init_mod_private_example: "私有模组包名示例，仅支持大小写字母、数字、'-'、'_'、'.'和'/'，首字母必须为大小写字母"
+  init_mod_result: "初始化模组 [%v] 完成，模组ID：%v"
 
   # 新建角色相关
   new_character_help: "角色名称，也是生成代码中的角色类型名与文件名"
