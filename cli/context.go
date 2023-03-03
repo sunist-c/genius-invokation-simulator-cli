@@ -9,9 +9,10 @@ type NewCharacterContext struct {
 }
 
 type NewSkillContext struct {
-	SkillName string
-	SkillID   uint16
-	SkillType enum.SkillType
+	CharacterName string
+	SkillName     string
+	SkillID       uint16
+	SkillType     enum.SkillType
 }
 
 type NewCardContext struct{}
